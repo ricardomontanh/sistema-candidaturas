@@ -226,3 +226,83 @@ function mostrarCartaGerada(texto) {
     resultado.innerHTML = '';
     resultado.appendChild(output);
 }
+
+
+// Substituir função baixarDocx para usar o texto com substituições e formato correto
+function baixarDocx() {
+    if (!window.generatedCarta) {
+        alert("Gere uma carta antes de baixar.");
+        return;
+    }
+
+    const texto = aplicarSubstituicoes(window.generatedCarta);
+    const parágrafos = texto.split("\n").map(linha =>
+        new window.docx.Paragraph({
+            children: [new window.docx.TextRun(linha)]
+        })
+    );
+
+    const doc = new window.docx.Document({
+        sections: [{
+            children: parágrafos
+        }]
+    });
+
+    window.docx.Packer.toBlob(doc).then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Carta_Apresentacao.docx";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    });
+}
+
+
+// Garante que a resposta da IA é processada corretamente com substituições aplicadas
+async function gerarCartaComIA() {
+    const vaga = document.getElementById("vaga").value.trim();
+    const empresa = document.getElementById("empresa").value.trim();
+    const descricao = document.getElementById("descricao").value.trim();
+    const apikeyInput = document.getElementById("apikey");
+    let apikey = apikeyInput.value.trim();
+    if (!apikey) {
+        apikey = localStorage.getItem("openai_apikey") || '';
+        apikeyInput.value = apikey;
+    } else {
+        localStorage.setItem("openai_apikey", apikey);
+    }
+
+    if (!vaga || !empresa || !descricao || !apikey) {
+        alert("Por favor, preencha todos os campos e insira a API Key.");
+        return;
+    }
+
+    const prompt = `Gere uma carta de apresentação formal e bem estruturada para a vaga de '${vaga}' na empresa '${empresa}'. A carta deve refletir motivação e destacar competências para o cargo. Use o seguinte resumo da vaga como base:
+
+${descricao}`;
+
+    const resposta = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apikey}`
+        },
+        body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7
+        })
+    });
+
+    const dados = await resposta.json();
+    if (dados.error) {
+        alert("Erro: " + dados.error.message);
+        return;
+    }
+
+    const textoGerado = dados.choices[0].message.content;
+    mostrarCartaGerada(textoGerado); // <- usa substituições corretamente
+}
