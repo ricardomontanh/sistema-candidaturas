@@ -1,3 +1,4 @@
+
 document.getElementById('formulario').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -24,10 +25,10 @@ document.getElementById('formulario').addEventListener('submit', async function(
     const data = await resposta.json();
 
     if (data.choices && data.choices.length > 0) {
-        const carta = data.choices[0].message.content.trim();
+        let carta = data.choices[0].message.content.trim();
         document.getElementById('cartaGerada').value = carta;
         document.getElementById('resultado').classList.remove('oculto');
-        window.generatedCarta = carta; // Guardar carta globalmente
+        window.generatedCarta = carta;
     } else {
         alert("Erro ao gerar a carta. Verifique sua API Key ou tente novamente.");
         console.error(data);
@@ -47,18 +48,33 @@ function baixarDocx() {
         return;
     }
 
+    const nome = "Ricardo Munhoz Montanha";
+    const endereco = "Urbanização Quinta Dr. Beirão nº 9 Lote 15 - 3º Esquerdo";
+    const cidade = "Castelo Branco, 6000-140";
+    const email = "ricardomontanh@gmail.com";
+    const telefone = "+351 925 368 511";
+    const dataHoje = new Date().toLocaleDateString('pt-PT');
+
+    // Substituir marcadores no texto
+    let textoFinal = window.generatedCarta
+        .replaceAll("[Seu nome]", nome)
+        .replaceAll("[Seu endereço]", endereco)
+        .replaceAll("[Seu email]", email)
+        .replaceAll("[Seu número de telefone]", telefone)
+        .replaceAll("[Data]", dataHoje);
+
     const header = [
-        "Ricardo Munhoz Montanha",
-        "Urbanização Quinta Dr. Beirão nº 9 Lote 15 - 3º Esquerdo",
-        "Castelo Branco, 6000-140",
-        "E-mail: ricardomontanh@gmail.com",
-        "Telefone: +351 925 368 511",
+        nome,
+        endereco,
+        cidade,
+        `E-mail: ${email}`,
+        `Telefone: ${telefone}`,
         "",
-        new Date().toLocaleDateString('pt-PT'),
+        `Castelo Branco, ${dataHoje}`,
         ""
     ];
 
-    const fullText = header.concat(window.generatedCarta.split('\n')).join('\n');
+    const fullText = header.concat(textoFinal.split('\n')).join('\n');
 
     const doc = new window.docx.Document({
         sections: [{
