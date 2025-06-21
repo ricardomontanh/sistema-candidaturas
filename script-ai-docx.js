@@ -199,3 +199,17 @@ function baixarDocx() {
         window.URL.revokeObjectURL(url);
     });
 }
+
+
+// Salvar e lembrar da API Key mesmo após recarregar
+document.addEventListener("DOMContentLoaded", () => {
+    const apiKeyField = document.getElementById("apikey");
+    const savedKey = localStorage.getItem("openai_apikey");
+    if (savedKey) {
+        apiKeyField.value = savedKey;
+    }
+
+    apiKeyField.addEventListener("input", () => {
+        localStorage.setItem("openai_apikey", apiKeyField.value);
+    });
+});
