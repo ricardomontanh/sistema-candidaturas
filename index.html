@@ -3,32 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Envio de Currículos</title>
+    <title>Gerador de Cartas com IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Envio Automático de Currículos</h1>
-        <form id="formulario">
-            <label for="nome">Nome da Vaga:</label>
-            <input type="text" id="nome" name="nome" placeholder="Ex: Fiel de Armazém" required>
+<div class="container">
+    <h1>Gerar Carta de Apresentação com IA</h1>
+    <form id="formulario">
+        <label for="apikey">Sua API Key da OpenAI:</label>
+        <input type="password" id="apikey" placeholder="sk-..." required>
 
-            <label for="empresa">Empresa:</label>
-            <input type="text" id="empresa" name="empresa" placeholder="Ex: Regacentro" required>
+        <label for="vaga">Nome da Vaga:</label>
+        <input type="text" id="vaga" placeholder="Ex: Técnico de Logística" required>
 
-            <label for="cv">Selecione seu currículo (PDF):</label>
-            <input type="file" id="cv" accept=".pdf">
+        <label for="empresa">Nome da Empresa:</label>
+        <input type="text" id="empresa" placeholder="Ex: SONAE" required>
 
-            <button type="submit">Gerar Carta</button>
-        </form>
+        <label for="descricao">Descrição da Vaga:</label>
+        <textarea id="descricao" rows="6" placeholder="Cole aqui a descrição da vaga..." required></textarea>
 
-        <div id="resultado" class="oculto">
-            <h2>Carta de Apresentação Gerada:</h2>
-            <textarea id="cartaGerada" rows="12"></textarea>
-            <button onclick="copiarTexto()">Copiar Carta</button>
-        </div>
+        <button type="submit">Gerar Carta com IA</button>
+    </form>
+
+    <div id="resultado" class="oculto">
+        <h2>Carta Gerada:</h2>
+        <textarea id="cartaGerada" rows="12"></textarea>
+        <button onclick="copiarTexto()">Copiar Carta</button>
     </div>
-
-    <script src="script.js"></script>
+</div>
+<script src="script-ai.js"></script>
 </body>
 </html>
