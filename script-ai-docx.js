@@ -213,3 +213,16 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("openai_apikey", apiKeyField.value);
     });
 });
+
+
+// Após gerar nova carta, aplicar substituições fixas novamente
+function mostrarCartaGerada(texto) {
+    const textoFinal = aplicarSubstituicoes(texto);
+    window.generatedCarta = textoFinal;
+
+    const output = document.createElement("pre");
+    output.textContent = textoFinal;
+    const resultado = document.getElementById("resultado");
+    resultado.innerHTML = '';
+    resultado.appendChild(output);
+}
