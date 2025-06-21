@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Cartas com IA</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/docx@8.0.2/build/index.umd.js"></script>
 </head>
 <body>
 <div class="container">
@@ -29,8 +30,9 @@
         <h2>Carta Gerada:</h2>
         <textarea id="cartaGerada" rows="12"></textarea>
         <button onclick="copiarTexto()">Copiar Carta</button>
+        <button onclick="baixarDocx()">Baixar como .docx</button>
     </div>
 </div>
-<script src="script-ai.js"></script>
+<script src="script-ai-docx.js"></script>
 </body>
 </html>
