@@ -2,7 +2,16 @@
 document.getElementById('formulario').addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const apikey = document.getElementById('apikey').value.trim();
+    
+    const apikeyInput = document.getElementById('apikey');
+    let apikey = apikeyInput.value.trim();
+    if (!apikey) {
+        apikey = localStorage.getItem('openai_apikey') || '';
+        apikeyInput.value = apikey;
+    } else {
+        localStorage.setItem('openai_apikey', apikey);
+    }
+
     const vaga = document.getElementById('vaga').value.trim();
     const empresa = document.getElementById('empresa').value.trim();
     const descricao = document.getElementById('descricao').value.trim();
@@ -50,23 +59,30 @@ function baixarDocx() {
 
     const nome = "Ricardo Munhoz Montanha";
     const endereco = "Urbanização Quinta Dr. Beirão nº 9 Lote 15 - 3º Esquerdo";
-    const cidade = "Castelo Branco, 6000-140";
+    const cidade = "Castelo Branco";
+    const codigopostal = "6000-140";
+    const cidade_cp = cidade + ", " + codigopostal;
     const email = "ricardomontanh@gmail.com";
     const telefone = "+351 925 368 511";
     const dataHoje = new Date().toLocaleDateString('pt-PT');
 
-    // Substituir marcadores no texto
+    // Substituir todos os marcadores conhecidos
     let textoFinal = window.generatedCarta
         .replaceAll("[Seu nome]", nome)
         .replaceAll("[Seu endereço]", endereco)
         .replaceAll("[Seu email]", email)
+        .replaceAll("[Seu e-mail]", email)
         .replaceAll("[Seu número de telefone]", telefone)
-        .replaceAll("[Data]", dataHoje);
+        .replaceAll("[Cidade, Código Postal]", cidade_cp)
+        .replaceAll("[Data]", dataHoje)
+        .replaceAll("[Local e data]", `Castelo Branco, ${dataHoje}`)
+        .replaceAll("[Cidade]", cidade)
+        .replaceAll("[Código Postal]", codigopostal);
 
     const header = [
         nome,
         endereco,
-        cidade,
+        cidade_cp,
         `E-mail: ${email}`,
         `Telefone: ${telefone}`,
         "",
@@ -93,4 +109,12 @@ function baixarDocx() {
         a.click();
         window.URL.revokeObjectURL(url);
     });
+}
+
+
+// Botão para limpar API Key do localStorage
+function limparApiKey() {
+    localStorage.removeItem('openai_apikey');
+    document.getElementById('apikey').value = '';
+    alert('API Key removida com sucesso. Você precisará inseri-la novamente.');
 }
