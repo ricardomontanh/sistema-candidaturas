@@ -118,3 +118,84 @@ function limparApiKey() {
     document.getElementById('apikey').value = '';
     alert('API Key removida com sucesso. Você precisará inseri-la novamente.');
 }
+
+
+// Assinatura automática ao final
+function aplicarSubstituicoes(texto) {
+    const nome = "Ricardo Munhoz Montanha";
+    const endereco = "Urbanização Quinta Dr. Beirão nº 9 Lote 15 - 3º Esquerdo";
+    const cidade = "Castelo Branco";
+    const codigopostal = "6000-140";
+    const cidade_cp = cidade + ", " + codigopostal;
+    const email = "ricardomontanh@gmail.com";
+    const telefone = "+351 925 368 511";
+    const dataHoje = new Date().toLocaleDateString('pt-PT');
+
+    let textoFinal = texto
+        .replaceAll("[Seu nome]", nome)
+        .replaceAll("[Seu endereço]", endereco)
+        .replaceAll("[Seu email]", email)
+        .replaceAll("[Seu e-mail]", email)
+        .replaceAll("[Seu número de telefone]", telefone)
+        .replaceAll("[Cidade, Código Postal]", cidade_cp)
+        .replaceAll("[Data]", dataHoje)
+        .replaceAll("[Local e data]", `Castelo Branco, ${dataHoje}`)
+        .replaceAll("[Cidade]", cidade)
+        .replaceAll("[Código Postal]", codigopostal);
+
+    // Adiciona assinatura automática se não estiver presente
+    if (!textoFinal.includes(nome)) {
+        textoFinal += "\n\n" + nome;
+    }
+
+    return textoFinal;
+}
+
+function baixarDocx() {
+    if (!window.generatedCarta) {
+        alert("Gere uma carta antes de baixar.");
+        return;
+    }
+
+    const nome = "Ricardo Munhoz Montanha";
+    const endereco = "Urbanização Quinta Dr. Beirão nº 9 Lote 15 - 3º Esquerdo";
+    const cidade = "Castelo Branco";
+    const codigopostal = "6000-140";
+    const cidade_cp = cidade + ", " + codigopostal;
+    const email = "ricardomontanh@gmail.com";
+    const telefone = "+351 925 368 511";
+    const dataHoje = new Date().toLocaleDateString('pt-PT');
+
+    const textoComSubstituicoes = aplicarSubstituicoes(window.generatedCarta);
+
+    const header = [
+        nome,
+        endereco,
+        cidade_cp,
+        `E-mail: ${email}`,
+        `Telefone: ${telefone}`,
+        "",
+        `Castelo Branco, ${dataHoje}`,
+        ""
+    ];
+
+    const fullText = header.concat(textoComSubstituicoes.split('\n')).join('\n');
+
+    const doc = new window.docx.Document({
+        sections: [{
+            properties: {},
+            children: fullText.split('\n').map(p =>
+                new window.docx.Paragraph({ children: [new window.docx.TextRun(p)] })
+            )
+        }]
+    });
+
+    window.docx.Packer.toBlob(doc).then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Carta_Apresentacao.docx";
+        a.click();
+        window.URL.revokeObjectURL(url);
+    });
+}
