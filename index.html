@@ -1,41 +1,48 @@
+
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Cartas com IA</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/docx@8.0.2/build/index.umd.js"></script>
+    <title>Gerador de Cartas de Apresentação</title>
 </head>
 <body>
-<div class="container">
-    <h1>Gerar Carta de Apresentação com IA</h1>
-    <form id="formulario">
-        <label for="apikey">Sua API Key da OpenAI:</label>
-        <input type="password" id="apikey" placeholder="sk-..." required>
+    <h2>Sistema de Geração de Cartas de Apresentação</h2>
 
-        <label for="vaga">Nome da Vaga:</label>
-        <input type="text" id="vaga" placeholder="Ex: Técnico de Logística" required>
+    <label>Nome da Vaga:</label><br>
+    <input type="text" id="vaga" placeholder="Ex: Operador de Armazém"><br><br>
 
-        <label for="empresa">Nome da Empresa:</label>
-        <input type="text" id="empresa" placeholder="Ex: SONAE" required>
+    <label>Nome da Empresa:</label><br>
+    <input type="text" id="empresa" placeholder="Ex: hôma"><br><br>
 
-        <label for="descricao">Descrição da Vaga:</label>
-        <textarea id="descricao" rows="6" placeholder="Cole aqui a descrição da vaga..." required></textarea>
+    <label>Endereço da Empresa:</label><br>
+    <input type="text" id="empresa_endereco" placeholder="Ex: Avenida da República, nº 29, 1050-186 Lisboa"><br><br>
 
-        <button type="submit">Gerar Carta com IA</button>
-    
-        <button type="button" onclick="limparApiKey()">Limpar API Key</button>
-    </form>
+    <label>Email da Empresa:</label><br>
+    <input type="email" id="empresa_email" placeholder="Ex: recrutamento@homaliving.pt"><br><br>
 
+    <label>Idioma da Carta:</label><br>
+    <select id="idioma">
+        <option value="português" selected>Português</option>
+        <option value="espanhol">Espanhol</option>
+        <option value="inglês">Inglês</option>
+    </select><br><br>
 
-    <div id="resultado" class="oculto">
-        <h2>Carta Gerada:</h2>
-        <textarea id="cartaGerada" rows="12"></textarea>
-        <button onclick="copiarTexto()">Copiar Carta</button>
-        <button onclick="baixarDocx()">Baixar como .docx</button>
-    </div>
-</div>
-<script src="script-ai-docx.js"></script>
+    <label>Resumo da Vaga (copiar e colar da descrição):</label><br>
+    <textarea id="descricao" rows="8" cols="80"></textarea><br><br>
+
+    <label>API Key da OpenAI:</label><br>
+    <input type="password" id="apikey" placeholder="Insira sua chave API aqui"><br><br>
+
+    <button onclick="gerarCartaComIA()">Gerar Carta</button>
+    <button onclick="baixarDocx()">Baixar como .docx</button>
+    <button onclick="baixarPdf()">Baixar como .pdf</button>
+    <button onclick="copiarTexto()">Copiar Carta</button>
+    <button onclick="limparAPIKey()">Limpar API Key</button><br><br>
+
+    <div id="resultado"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.0.2/docx.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script-ai-docx.js"></script>
 </body>
 </html>

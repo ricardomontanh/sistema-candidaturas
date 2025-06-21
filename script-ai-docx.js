@@ -1,126 +1,4 @@
 
-document.getElementById('formulario').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    
-    const apikeyInput = document.getElementById('apikey');
-    let apikey = apikeyInput.value.trim();
-    if (!apikey) {
-        apikey = localStorage.getItem('openai_apikey') || '';
-        apikeyInput.value = apikey;
-    } else {
-        localStorage.setItem('openai_apikey', apikey);
-    }
-
-    const vaga = document.getElementById('vaga').value.trim();
-    const empresa = document.getElementById('empresa').value.trim();
-    const descricao = document.getElementById('descricao').value.trim();
-
-    const prompt = `Escreva uma carta de apresentação formal para o cargo de ${vaga} na empresa ${empresa}, com base na seguinte descrição de vaga:\n\n${descricao}`;
-
-    const resposta = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apikey}`
-        },
-        body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.7
-        })
-    });
-
-    const data = await resposta.json();
-
-    if (data.choices && data.choices.length > 0) {
-        let carta = data.choices[0].message.content.trim();
-        document.getElementById('cartaGerada').value = carta;
-        document.getElementById('resultado').classList.remove('oculto');
-        window.generatedCarta = carta;
-    } else {
-        alert("Erro ao gerar a carta. Verifique sua API Key ou tente novamente.");
-        console.error(data);
-    }
-});
-
-function copiarTexto() {
-    const carta = document.getElementById('cartaGerada');
-    carta.select();
-    document.execCommand('copy');
-    alert('Carta copiada para a área de transferência!');
-}
-
-function baixarDocx() {
-    if (!window.generatedCarta) {
-        alert("Gere uma carta antes de baixar.");
-        return;
-    }
-
-    const nome = "Ricardo Munhoz Montanha";
-    const endereco = "Urbanização Quinta Dr. Beirão nº 9 Lote 15 - 3º Esquerdo";
-    const cidade = "Castelo Branco";
-    const codigopostal = "6000-140";
-    const cidade_cp = cidade + ", " + codigopostal;
-    const email = "ricardomontanh@gmail.com";
-    const telefone = "+351 925 368 511";
-    const dataHoje = new Date().toLocaleDateString('pt-PT');
-
-    // Substituir todos os marcadores conhecidos
-    let textoFinal = window.generatedCarta
-        .replaceAll("[Seu nome]", nome)
-        .replaceAll("[Seu endereço]", endereco)
-        .replaceAll("[Seu email]", email)
-        .replaceAll("[Seu e-mail]", email)
-        .replaceAll("[Seu número de telefone]", telefone)
-        .replaceAll("[Cidade, Código Postal]", cidade_cp)
-        .replaceAll("[Data]", dataHoje)
-        .replaceAll("[Local e data]", `Castelo Branco, ${dataHoje}`)
-        .replaceAll("[Cidade]", cidade)
-        .replaceAll("[Código Postal]", codigopostal);
-
-    const header = [
-        nome,
-        endereco,
-        cidade_cp,
-        `E-mail: ${email}`,
-        `Telefone: ${telefone}`,
-        "",
-        `Castelo Branco, ${dataHoje}`,
-        ""
-    ];
-
-    const fullText = header.concat(textoFinal.split('\n')).join('\n');
-
-    const doc = new window.docx.Document({
-        sections: [{
-            properties: {},
-            children: fullText.split('\n').map(p =>
-                new window.docx.Paragraph({ children: [new window.docx.TextRun(p)] })
-            )
-        }]
-    });
-
-    window.docx.Packer.toBlob(doc).then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "Carta_Apresentacao.docx";
-        a.click();
-        window.URL.revokeObjectURL(url);
-    });
-}
-
-
-// Botão para limpar API Key do localStorage
-function limparApiKey() {
-    localStorage.removeItem('openai_apikey');
-    document.getElementById('apikey').value = '';
-    alert('API Key removida com sucesso. Você precisará inseri-la novamente.');
-}
-
-
-// Assinatura automática ao final
 function aplicarSubstituicoes(texto) {
     const nome = "Ricardo Munhoz Montanha";
     const endereco = "Urbanização Quinta Dr. Beirão nº 9 Lote 15 - 3º Esquerdo";
@@ -131,19 +9,26 @@ function aplicarSubstituicoes(texto) {
     const telefone = "+351 925 368 511";
     const dataHoje = new Date().toLocaleDateString('pt-PT');
 
-    let textoFinal = texto
-        .replaceAll("[Seu nome]", nome)
-        .replaceAll("[Seu endereço]", endereco)
-        .replaceAll("[Seu email]", email)
-        .replaceAll("[Seu e-mail]", email)
-        .replaceAll("[Seu número de telefone]", telefone)
-        .replaceAll("[Cidade, Código Postal]", cidade_cp)
-        .replaceAll("[Data]", dataHoje)
-        .replaceAll("[Local e data]", `Castelo Branco, ${dataHoje}`)
-        .replaceAll("[Cidade]", cidade)
-        .replaceAll("[Código Postal]", codigopostal);
+    const empresa_nome = document.getElementById("empresa").value.trim() || "EMPRESA";
+    const empresa_endereco = document.getElementById("empresa_endereco")?.value.trim() || "[Endereço da Empresa]";
+    const empresa_email = document.getElementById("empresa_email")?.value.trim() || "[Email da Empresa]";
 
-    // Adiciona assinatura automática se não estiver presente
+    let textoFinal = texto
+        .replaceAll("[Seu Nome]", nome)
+        .replaceAll("[Seu nome]", nome)
+        .replaceAll("[Seu Endereço]", endereco)
+        .replaceAll("[Seu endereço]", endereco)
+        .replaceAll("[Cidade, Código Postal]", cidade_cp)
+        .replaceAll("[Seu Email]", email)
+        .replaceAll("[Seu e-mail]", email)
+        .replaceAll("[Seu Número de Telefone]", telefone)
+        .replaceAll("[Telefone]", telefone)
+        .replaceAll("[Data]", dataHoje)
+        .replaceAll("[hôma]", empresa_nome)
+        .replaceAll("[Empresa]", empresa_nome)
+        .replaceAll("[Endereço da Empresa]", empresa_endereco)
+        .replaceAll("[Email da Empresa]", empresa_email);
+
     if (!textoFinal.includes(nome)) {
         textoFinal += "\n\n" + nome;
     }
@@ -151,71 +36,6 @@ function aplicarSubstituicoes(texto) {
     return textoFinal;
 }
 
-function baixarDocx() {
-    if (!window.generatedCarta) {
-        alert("Gere uma carta antes de baixar.");
-        return;
-    }
-
-    const nome = "Ricardo Munhoz Montanha";
-    const endereco = "Urbanização Quinta Dr. Beirão nº 9 Lote 15 - 3º Esquerdo";
-    const cidade = "Castelo Branco";
-    const codigopostal = "6000-140";
-    const cidade_cp = cidade + ", " + codigopostal;
-    const email = "ricardomontanh@gmail.com";
-    const telefone = "+351 925 368 511";
-    const dataHoje = new Date().toLocaleDateString('pt-PT');
-
-    const textoComSubstituicoes = aplicarSubstituicoes(window.generatedCarta);
-
-    const header = [
-        nome,
-        endereco,
-        cidade_cp,
-        `E-mail: ${email}`,
-        `Telefone: ${telefone}`,
-        "",
-        `Castelo Branco, ${dataHoje}`,
-        ""
-    ];
-
-    const fullText = header.concat(textoComSubstituicoes.split('\n')).join('\n');
-
-    const doc = new window.docx.Document({
-        sections: [{
-            properties: {},
-            children: fullText.split('\n').map(p =>
-                new window.docx.Paragraph({ children: [new window.docx.TextRun(p)] })
-            )
-        }]
-    });
-
-    window.docx.Packer.toBlob(doc).then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "Carta_Apresentacao.docx";
-        a.click();
-        window.URL.revokeObjectURL(url);
-    });
-}
-
-
-// Salvar e lembrar da API Key mesmo após recarregar
-document.addEventListener("DOMContentLoaded", () => {
-    const apiKeyField = document.getElementById("apikey");
-    const savedKey = localStorage.getItem("openai_apikey");
-    if (savedKey) {
-        apiKeyField.value = savedKey;
-    }
-
-    apiKeyField.addEventListener("input", () => {
-        localStorage.setItem("openai_apikey", apiKeyField.value);
-    });
-});
-
-
-// Após gerar nova carta, aplicar substituições fixas novamente
 function mostrarCartaGerada(texto) {
     const textoFinal = aplicarSubstituicoes(texto);
     window.generatedCarta = textoFinal;
@@ -227,47 +47,19 @@ function mostrarCartaGerada(texto) {
     resultado.appendChild(output);
 }
 
-
-// Substituir função baixarDocx para usar o texto com substituições e formato correto
-function baixarDocx() {
-    if (!window.generatedCarta) {
-        alert("Gere uma carta antes de baixar.");
-        return;
-    }
-
-    const texto = aplicarSubstituicoes(window.generatedCarta);
-    const parágrafos = texto.split("\n").map(linha =>
-        new window.docx.Paragraph({
-            children: [new window.docx.TextRun(linha)]
-        })
-    );
-
-    const doc = new window.docx.Document({
-        sections: [{
-            children: parágrafos
-        }]
-    });
-
-    window.docx.Packer.toBlob(doc).then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "Carta_Apresentacao.docx";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    });
-}
-
-
-// Garante que a resposta da IA é processada corretamente com substituições aplicadas
 async function gerarCartaComIA() {
     const vaga = document.getElementById("vaga").value.trim();
     const empresa = document.getElementById("empresa").value.trim();
     const descricao = document.getElementById("descricao").value.trim();
+    const idioma = document.getElementById("idioma").value.trim();
     const apikeyInput = document.getElementById("apikey");
     let apikey = apikeyInput.value.trim();
+
+    if (!vaga || !empresa || !descricao || !apikey) {
+        alert("Por favor, preencha todos os campos e insira a API Key.");
+        return;
+    }
+
     if (!apikey) {
         apikey = localStorage.getItem("openai_apikey") || '';
         apikeyInput.value = apikey;
@@ -275,14 +67,7 @@ async function gerarCartaComIA() {
         localStorage.setItem("openai_apikey", apikey);
     }
 
-    if (!vaga || !empresa || !descricao || !apikey) {
-        alert("Por favor, preencha todos os campos e insira a API Key.");
-        return;
-    }
-
-    const prompt = `Gere uma carta de apresentação formal e bem estruturada para a vaga de '${vaga}' na empresa '${empresa}'. A carta deve refletir motivação e destacar competências para o cargo. Use o seguinte resumo da vaga como base:
-
-${descricao}`;
+    const prompt = `Gere uma carta de apresentação formal no idioma ${idioma} para a vaga de '${vaga}' na empresa '${empresa}'. A carta deve refletir motivação e destacar competências para o cargo. Use o seguinte resumo da vaga como base:\n\n${descricao}`;
 
     const resposta = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
@@ -304,5 +89,43 @@ ${descricao}`;
     }
 
     const textoGerado = dados.choices[0].message.content;
-    mostrarCartaGerada(textoGerado); // <- usa substituições corretamente
+    mostrarCartaGerada(textoGerado);
+}
+
+function baixarDocx() {
+    const { Document, Packer, Paragraph, TextRun } = window.docx;
+    const doc = new Document({
+        sections: [{
+            properties: {},
+            children: [new Paragraph({ children: [new TextRun(window.generatedCarta)] })],
+        }],
+    });
+
+    Packer.toBlob(doc).then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "carta_apresentacao.docx";
+        a.click();
+    });
+}
+
+function baixarPdf() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    const texto = window.generatedCarta || "";
+    const linhas = pdf.splitTextToSize(texto, 180);
+    pdf.text(linhas, 10, 20);
+    pdf.save("carta_apresentacao.pdf");
+}
+
+function copiarTexto() {
+    navigator.clipboard.writeText(window.generatedCarta || "").then(() => {
+        alert("Carta copiada para a área de transferência!");
+    });
+}
+
+function limparAPIKey() {
+    localStorage.removeItem("openai_apikey");
+    document.getElementById("apikey").value = "";
 }
